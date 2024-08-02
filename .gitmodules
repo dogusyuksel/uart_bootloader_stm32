@@ -10,3 +10,6 @@
 [submodule "thirdparty/CMSIS_5"]
 	path = thirdparty/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5.git
+[submodule "embedded_linting"]
+	path = embedded_linting
+	url = https://github.com/dogusyuksel/embedded_linting

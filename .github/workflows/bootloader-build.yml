@@ -51,3 +51,7 @@ jobs:
     - name: FW Writer Build Check
       run: |
         ./docker/run_docker.sh ${{ secrets.DOCKER_REPO }}:master "cd /workspace/Tool && make"
+
+    - name: Format Check
+      run: |
+        ./docker/run_docker.sh ${{ secrets.DOCKER_REPO }}:master "cd /workspace/embedded_linting && ./format_check.sh ../canbus"
