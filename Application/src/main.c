@@ -1,6 +1,17 @@
 #include "main.h"
 #include "gpio.h"
 #include "usart.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+char ch = 0;
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart == &huart3) {
+        HAL_UART_Receive_IT(&huart3, (uint8_t *)&ch, 1);
+        HAL_UART_Transmit(&huart3, (uint8_t *)(&ch), 1, 10);
+    }
+}
 
 void SystemClock_Config(void);
 
@@ -13,7 +24,15 @@ int main(void) {
   MX_GPIO_Init();
   MX_USART3_UART_Init();
 
+  HAL_UART_Receive_IT(&huart3, (uint8_t *)&ch, 1);
+
   while (1) {
+    HAL_UART_Transmit(&huart3, (uint8_t *)"hello from application\0", 23, 200);
+    HAL_Delay(1000);
+    HAL_Delay(1000);
+    HAL_Delay(1000);
+    HAL_Delay(1000);
+    HAL_Delay(1000);
   }
 }
 
