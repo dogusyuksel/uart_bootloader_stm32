@@ -1,10 +1,40 @@
 #include "main.h"
 #include "gpio.h"
 #include "usart.h"
+#include <stdint.h>
+
+typedef void (*pFunction)(void);
+
+void myjump(uint32_t address) {
+    uint32_t jump_address = *(uint32_t *) (address + 4);
+    pFunction jump_function = (pFunction) jump_address;
+
+    // De initialize RCC, HAL and disable IRQs
+    HAL_RCC_DeInit();
+    HAL_DeInit();
+    __disable_irq();
+
+    // Reset the SysTick timer
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL = 0;
+
+    // Set Vector tab offset
+    SCB->VTOR = address;
+    // Update the Master Stack Pointer
+    __set_MSP(*(uint32_t *) address);
+    // Activate (privileged) thread mode
+    __set_CONTROL(0);
+    // Enable IRQs before we jump into the firmware
+    __enable_irq();
+
+    jump_function();
+}
 
 void SystemClock_Config(void);
 
 int main(void) {
+  uint8_t counter = 0;
 
   HAL_Init();
 
@@ -14,6 +44,14 @@ int main(void) {
   MX_USART3_UART_Init();
 
   while (1) {
+    HAL_UART_Transmit(&huart3, (uint8_t *)"hello from bootloader\0", 22, 200);
+    HAL_Delay(1000);
+    counter++;
+    if (counter >= 10) {
+        //check the FW exists
+        //then jump
+        myjump(0x08004000);
+    }
   }
 }
 
